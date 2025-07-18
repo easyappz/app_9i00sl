@@ -1,15 +1,19 @@
 const mongoose = require('mongoose');
 
-const TextSchema = new mongoose.Schema({
+const textSchema = new mongoose.Schema({
   value: {
     type: String,
     required: true,
-    default: '',
+    default: ''
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
-module.exports = mongoose.model('Text', TextSchema);
+module.exports = mongoose.model('Text', textSchema);

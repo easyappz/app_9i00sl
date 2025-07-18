@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const apiRoutes = require('./apiRoutes');
+const { connectToMongoDB } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,7 +19,17 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong on the server!' });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Start Server with MongoDB Connection
+const startServer = async () => {
+  try {
+    await connectToMongoDB();
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server due to MongoDB connection error:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
