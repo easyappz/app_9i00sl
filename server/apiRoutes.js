@@ -1,22 +1,5 @@
 const express = require('express');
-
-/**
- * Пример создания модели в базу данных
- */
-// const mongoose = require('mongoose');
-// const db = require('/db');
-
-// const MongoTestSchema = new mongoose.Schema({
-//   value: { type: String, required: true },
-// });
-
-// const MongoModelTest = db.mongoDb.model('Test', MongoTestSchema);
-
-// const newTest = new MongoModelTest({
-//   value: 'test-value',
-// });
-
-// newTest.save();
+const Text = require('./models/Text');
 
 const router = express.Router();
 
@@ -33,5 +16,43 @@ router.get('/status', (req, res) => {
   });
 });
 
-module.exports = router;
+// GET /api/text - Retrieve the saved text value
+router.get('/text', async (req, res) => {
+  try {
+    const textDoc = await Text.findOne();
+    if (textDoc) {
+      res.json({ value: textDoc.value });
+    } else {
+      res.json({ value: '' });
+    }
+  } catch (error) {
+    console.error('Error fetching text:', error);
+    res.status(500).json({ message: 'Failed to fetch text value' });
+  }
+});
 
+// POST /api/text - Save or update the text value
+router.post('/text', async (req, res) => {
+  try {
+    const { value } = req.body;
+    if (value === undefined || value === null) {
+      return res.status(400).json({ message: 'Text value is required' });
+    }
+
+    let textDoc = await Text.findOne();
+    if (textDoc) {
+      textDoc.value = value;
+      textDoc.updatedAt = Date.now();
+    } else {
+      textDoc = new Text({ value });
+    }
+
+    await textDoc.save();
+    res.status(200).json({ message: 'Text saved successfully', value });
+  } catch (error) {
+    console.error('Error saving text:', error);
+    res.status(500).json({ message: 'Failed to save text value' });
+  }
+});
+
+module.exports = router;
